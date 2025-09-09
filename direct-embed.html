@@ -1,0 +1,302 @@
+<div style="width: 100%; max-width: 800px; margin: 0 auto;">
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    .color-checker-widget * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    .color-checker-widget {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 500px;
+      font-family: Arial, sans-serif;
+      border-radius: 15px;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    
+    .color-checker-widget h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      text-align: center;
+      color: white;
+      text-shadow: 3px 3px 0px #ff6b6b, 6px 6px 0px #4ecdc4;
+      margin-bottom: 20px;
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+      60% { transform: translateY(-4px); }
+    }
+    
+    .color-checker-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      max-height: 400px;
+      overflow: hidden;
+    }
+    
+    .color-panel {
+      background: rgba(255,255,255,0.95);
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+      border: 3px solid #4ecdc4;
+      position: relative;
+    }
+    
+    .panel-name {
+      width: 100%;
+      padding: 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      padding: 8px;
+      background: #f8f9ff;
+      border-radius: 6px;
+    }
+    
+    .color-label {
+      font-weight: bold;
+      min-width: 50px;
+      font-size: 12px;
+    }
+    
+    .hex-input {
+      flex: 1;
+      padding: 6px;
+      border: 2px solid #e0e0e0;
+      border-radius: 4px;
+      font-family: monospace;
+      text-transform: uppercase;
+      font-weight: bold;
+      font-size: 12px;
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .eyedropper-btn {
+      width: 24px;
+      height: 24px;
+      border: 2px solid #667eea;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #667eea;
+    }
+    
+    .eyedropper-btn:hover {
+      background: #f0f2ff;
+      border-color: #ff6b6b;
+      color: #ff6b6b;
+    }
+    
+    .score-display {
+      text-align: center;
+      padding: 10px;
+      background: linear-gradient(135deg, #ff6b6b, #ffa726);
+      color: white;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    
+    .score-label {
+      font-size: 10px;
+      opacity: 0.9;
+      margin-bottom: 2px;
+    }
+    
+    .score-value {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    .add-panel-btn {
+      background: rgba(255,255,255,0.8);
+      border: 3px dashed #667eea;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      color: #667eea;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+    
+    .add-panel-btn:hover {
+      background: rgba(102,126,234,0.1);
+      border-color: #ff6b6b;
+      color: #ff6b6b;
+    }
+    
+    @media (max-width: 600px) {
+      .color-checker-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  
+  <div class="color-checker-widget">
+    <h1>Closest Colors!</h1>
+    <div class="color-checker-grid" id="colorGrid">
+      <div class="add-panel-btn" onclick="addColorPanel()">
+        <div style="font-size: 24px; margin-bottom: 5px;">+</div>
+        Add Panel
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let panelCount = 0;
+    const maxPanels = 5;
+    
+    function addColorPanel() {
+      if (panelCount >= maxPanels) {
+        alert('Maximum 5 panels allowed!');
+        return;
+      }
+      
+      panelCount++;
+      const grid = document.getElementById('colorGrid');
+      const addBtn = grid.querySelector('.add-panel-btn');
+      
+      const panel = document.createElement('div');
+      panel.className = 'color-panel';
+      panel.innerHTML = `
+        <input type="text" class="panel-name" value="Comparison ${panelCount}" placeholder="Panel name">
+        <div class="color-row">
+          <span class="color-label">Color A:</span>
+          <input type="text" class="hex-input" id="hexA${panelCount}" value="#FF6B6B" onchange="updateColor(this, ${panelCount}, 'A')">
+          <button class="eyedropper-btn" onclick="openPicker(${panelCount}, 'A')">
+            <i class="fas fa-eye-dropper"></i>
+          </button>
+          <input type="color" class="hidden-input" id="colorA${panelCount}" value="#FF6B6B" onchange="updateHex(this, ${panelCount}, 'A')">
+        </div>
+        <div class="color-row">
+          <span class="color-label">Color B:</span>
+          <input type="text" class="hex-input" id="hexB${panelCount}" value="#4ECDC4" onchange="updateColor(this, ${panelCount}, 'B')">
+          <button class="eyedropper-btn" onclick="openPicker(${panelCount}, 'B')">
+            <i class="fas fa-eye-dropper"></i>
+          </button>
+          <input type="color" class="hidden-input" id="colorB${panelCount}" value="#4ECDC4" onchange="updateHex(this, ${panelCount}, 'B')">
+        </div>
+        <div class="score-display">
+          <div class="score-label">Distance Score</div>
+          <div class="score-value" id="score${panelCount}">0</div>
+        </div>
+      `;
+      
+      grid.insertBefore(panel, addBtn);
+      
+      // Initialize colors
+      updateColor(document.getElementById(`hexA${panelCount}`), panelCount, 'A');
+      updateColor(document.getElementById(`hexB${panelCount}`), panelCount, 'B');
+      calculateDistance(panelCount);
+      
+      if (panelCount >= maxPanels) {
+        addBtn.style.display = 'none';
+      }
+    }
+    
+    function openPicker(panelNum, color) {
+      document.getElementById(`color${color}${panelNum}`).click();
+    }
+    
+    function updateHex(colorInput, panelNum, color) {
+      const hexInput = document.getElementById(`hex${color}${panelNum}`);
+      hexInput.value = colorInput.value.toUpperCase();
+      updateColor(hexInput, panelNum, color);
+      calculateDistance(panelNum);
+    }
+    
+    function updateColor(hexInput, panelNum, color) {
+      const hex = validateHex(hexInput.value);
+      if (hex) {
+        hexInput.style.backgroundColor = hex;
+        const rgb = hexToRgb(hex);
+        const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+        hexInput.style.color = brightness > 128 ? '#000' : '#fff';
+        document.getElementById(`color${color}${panelNum}`).value = hex;
+      }
+      calculateDistance(panelNum);
+    }
+    
+    function validateHex(hex) {
+      hex = hex.replace('#', '');
+      if (/^[0-9A-Fa-f]{6}$/.test(hex)) {
+        return '#' + hex.toUpperCase();
+      } else if (/^[0-9A-Fa-f]{3}$/.test(hex)) {
+        return '#' + hex.split('').map(c => c + c).join('').toUpperCase();
+      }
+      return null;
+    }
+    
+    function hexToRgb(hex) {
+      hex = hex.replace('#', '');
+      return {
+        r: parseInt(hex.substring(0, 2), 16),
+        g: parseInt(hex.substring(2, 4), 16),
+        b: parseInt(hex.substring(4, 6), 16)
+      };
+    }
+    
+    function calculateDistance(panelNum) {
+      const hexA = document.getElementById(`hexA${panelNum}`).value;
+      const hexB = document.getElementById(`hexB${panelNum}`).value;
+      const scoreEl = document.getElementById(`score${panelNum}`);
+      
+      if (!validateHex(hexA) || !validateHex(hexB)) {
+        scoreEl.textContent = 'Invalid';
+        return;
+      }
+      
+      const rgbA = hexToRgb(hexA);
+      const rgbB = hexToRgb(hexB);
+      
+      const distance = Math.sqrt(
+        Math.pow(rgbB.r - rgbA.r, 2) +
+        Math.pow(rgbB.g - rgbA.g, 2) +
+        Math.pow(rgbB.b - rgbA.b, 2)
+      );
+      
+      scoreEl.textContent = Math.round(distance * 100) / 100;
+      
+      const scoreDiv = scoreEl.parentElement;
+      if (distance < 50) {
+        scoreDiv.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+      } else if (distance < 150) {
+        scoreDiv.style.background = 'linear-gradient(135deg, #FF9800, #FFC107)';
+      } else {
+        scoreDiv.style.background = 'linear-gradient(135deg, #ff6b6b, #ffa726)';
+      }
+    }
+    
+    // Add initial panel
+    setTimeout(() => addColorPanel(), 100);
+  </script>
+</div>
