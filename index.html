@@ -5,9 +5,381 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Closest Colors!</title>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka+One:wght@400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
     <!-- Add Font Awesome for eyedropper icon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .main-title {
+            font-family: 'Fredoka One', cursive;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            text-align: center;
+            color: #ffffff;
+            text-shadow: 
+                3px 3px 0px #ff6b6b,
+                6px 6px 0px #4ecdc4,
+                9px 9px 0px #45b7d1;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        .panels-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            flex: 1;
+            overflow: hidden;
+            padding: 0 10px;
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .plus-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px dashed #667eea;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .plus-panel:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: #ff6b6b;
+        }
+
+        .plus-icon {
+            font-size: clamp(2rem, 5vw, 4rem);
+            color: #667eea;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .plus-panel:hover .plus-icon {
+            color: #ff6b6b;
+            transform: rotate(90deg);
+        }
+
+        .plus-panel p {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .plus-panel:hover p {
+            color: #ff6b6b;
+        }
+
+        .color-panel {
+            border: 3px solid #4ecdc4;
+        }
+
+        .panel-header {
+            margin-bottom: 15px;
+            flex-shrink: 0;
+        }
+
+        .panel-name {
+            width: 100%;
+            padding: 8px;
+            font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            font-weight: bold;
+            background: #f8f9ff;
+            text-align: center;
+        }
+
+        .panel-name:focus {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 10px rgba(78, 205, 196, 0.3);
+        }
+
+        .color-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .color-label {
+            font-weight: bold;
+            color: #333;
+            font-size: clamp(0.8rem, 1.2vw, 1rem);
+            min-width: 50px;
+        }
+
+        .eyedropper-btn {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #667eea;
+            flex-shrink: 0;
+        }
+
+        .eyedropper-btn:hover {
+            transform: scale(1.1);
+            background: #f0f2ff;
+            border-color: #ff6b6b;
+            color: #ff6b6b;
+        }
+
+        .hex-input {
+            flex: 1;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: clamp(0.8rem, 1.2vw, 0.95rem);
+            outline: none;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            min-width: 0;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .hex-input:focus {
+            border-color: #4ecdc4;
+        }
+
+        .range-guide {
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 10px;
+            font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+            text-align: center;
+        }
+
+        .range-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 2px 0;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+
+        .range-item.very-close {
+            background-color: rgba(76, 175, 80, 0.1);
+            color: #2e7d32;
+        }
+
+        .range-item.comparable {
+            background-color: rgba(255, 152, 0, 0.1);
+            color: #f57c00;
+        }
+
+        .range-item.not-close {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #d32f2f;
+        }
+
+        .range-emoji {
+            font-size: 1.2em;
+            margin-left: 4px;
+        }
+
+        .range-item.current {
+            font-weight: bold;
+            border: 2px solid;
+            transform: scale(1.05);
+            transition: all 0.3s ease;
+        }
+
+        .range-item.current.very-close {
+            border-color: #4CAF50;
+            background-color: rgba(76, 175, 80, 0.25);
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .range-item.current.comparable {
+            border-color: #FF9800;
+            background-color: rgba(255, 152, 0, 0.25);
+            box-shadow: 0 0 10px rgba(255, 152, 0, 0.3);
+        }
+
+        .range-item.current.not-close {
+            border-color: #F44336;
+            background-color: rgba(244, 67, 54, 0.25);
+            box-shadow: 0 0 10px rgba(244, 67, 54, 0.3);
+        }
+
+        .closeness-score {
+            text-align: center;
+            padding: 15px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            border-radius: 10px;
+            margin-top: auto;
+            flex-shrink: 0;
+        }
+
+        .closeness-label {
+            font-size: clamp(0.7rem, 1vw, 0.85rem);
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .closeness-value {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background: #ff5252;
+            transform: scale(1.1);
+        }
+
+        .color-panel {
+            position: relative;
+        }
+
+        /* Hide color inputs that are not needed */
+        .hidden-color-input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Responsive design */
+        @media (max-width: 1200px) {
+            .panels-container {
+                grid-template-columns: repeat(2, 1fr);
+                grid-template-rows: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .panels-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: repeat(6, 1fr);
+                gap: 10px;
+            }
+            
+            .color-input-group {
+                flex-wrap: wrap;
+            }
+            
+            .color-label {
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .main-title {
+                margin-bottom: 15px;
+            }
+            
+            .panel {
+                padding: 12px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -22,6 +394,310 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        class ColorComparator {
+            constructor() {
+                this.panelCount = 0;
+                this.maxPanels = 6;
+                this.init();
+            }
+
+            init() {
+                const plusPanel = document.getElementById('plusPanel');
+                plusPanel.addEventListener('click', () => this.addPanel());
+            }
+
+            addPanel() {
+                if (this.panelCount >= this.maxPanels) {
+                    alert(`Maximum of ${this.maxPanels} panels allowed!`);
+                    return;
+                }
+
+                this.panelCount++;
+                const panelId = `panel-${this.panelCount}`;
+                
+                const panelsContainer = document.getElementById('panelsContainer');
+                const plusPanel = document.getElementById('plusPanel');
+                
+                // Create new panel
+                const newPanel = this.createColorPanel(panelId);
+                
+                // Insert before the plus panel
+                panelsContainer.insertBefore(newPanel, plusPanel);
+                
+                // Hide plus panel if we've reached the maximum
+                if (this.panelCount >= this.maxPanels) {
+                    plusPanel.style.display = 'none';
+                }
+            }
+
+            createColorPanel(panelId) {
+                const panel = document.createElement('div');
+                panel.className = 'panel color-panel';
+                panel.id = panelId;
+                
+                panel.innerHTML = `
+                    <button class="delete-btn" onclick="colorComparator.deletePanel('${panelId}')">&times;</button>
+                    
+                    <div class="panel-header">
+                        <input type="text" class="panel-name" placeholder="Enter a Name" 
+                               value="">
+                    </div>
+                    
+                    <div class="color-section">
+                        <div class="color-input-group">
+                            <span class="color-label">Color A:</span>
+                            <input type="text" class="hex-input" id="${panelId}-hexA" value="#FF6B6B" 
+                                   placeholder="#FFFFFF" maxlength="7">
+                            <button class="eyedropper-btn" id="${panelId}-eyedropperA" title="Pick Color A">
+                                <i class="fas fa-eye-dropper"></i>
+                            </button>
+                            <input type="color" class="hidden-color-input" id="${panelId}-colorA" value="#FF6B6B">
+                        </div>
+                        
+                        <div class="color-input-group">
+                            <span class="color-label">Color B:</span>
+                            <input type="text" class="hex-input" id="${panelId}-hexB" value="#4ECDC4" 
+                                   placeholder="#FFFFFF" maxlength="7">
+                            <button class="eyedropper-btn" id="${panelId}-eyedropperB" title="Pick Color B">
+                                <i class="fas fa-eye-dropper"></i>
+                            </button>
+                            <input type="color" class="hidden-color-input" id="${panelId}-colorB" value="#4ECDC4">
+                        </div>
+                    </div>
+                    
+                    <div class="range-guide">
+                        <div class="range-item very-close">
+                            <span>0-50: Very Close</span>
+                            <span class="range-emoji">🎯</span>
+                        </div>
+                        <div class="range-item comparable">
+                            <span>50-150: Comparable</span>
+                            <span class="range-emoji">⚖️</span>
+                        </div>
+                        <div class="range-item not-close">
+                            <span>150+: Not Close</span>
+                            <span class="range-emoji">🚫</span>
+                        </div>
+                    </div>
+                    
+                    <div class="closeness-score">
+                        <div class="closeness-label">Distance Score</div>
+                        <div class="closeness-value" id="${panelId}-score">0</div>
+                    </div>
+                `;
+                
+                // Add event listeners for this panel
+                setTimeout(() => {
+                    this.setupPanelEvents(panelId);
+                    this.calculateCloseness(panelId);
+                }, 0);
+                
+                return panel;
+            }
+
+            setupPanelEvents(panelId) {
+                const colorPickerA = document.getElementById(`${panelId}-colorA`);
+                const colorPickerB = document.getElementById(`${panelId}-colorB`);
+                const hexInputA = document.getElementById(`${panelId}-hexA`);
+                const hexInputB = document.getElementById(`${panelId}-hexB`);
+                const eyedropperA = document.getElementById(`${panelId}-eyedropperA`);
+                const eyedropperB = document.getElementById(`${panelId}-eyedropperB`);
+
+                // Eyedropper button clicks trigger hidden color picker
+                eyedropperA.addEventListener('click', () => {
+                    colorPickerA.click();
+                });
+
+                eyedropperB.addEventListener('click', () => {
+                    colorPickerB.click();
+                });
+
+                // Color picker to hex input (hidden color picker)
+                colorPickerA.addEventListener('input', (e) => {
+                    hexInputA.value = e.target.value.toUpperCase();
+                    this.updateHexInputColor(hexInputA, e.target.value);
+                    this.calculateCloseness(panelId);
+                });
+
+                colorPickerB.addEventListener('input', (e) => {
+                    hexInputB.value = e.target.value.toUpperCase();
+                    this.updateHexInputColor(hexInputB, e.target.value);
+                    this.calculateCloseness(panelId);
+                });
+
+                // Hex input to color picker
+                hexInputA.addEventListener('input', (e) => {
+                    const hex = this.validateHex(e.target.value);
+                    if (hex) {
+                        colorPickerA.value = hex;
+                        e.target.value = hex.toUpperCase();
+                        this.updateHexInputColor(e.target, hex);
+                        this.calculateCloseness(panelId);
+                    }
+                });
+
+                hexInputB.addEventListener('input', (e) => {
+                    const hex = this.validateHex(e.target.value);
+                    if (hex) {
+                        colorPickerB.value = hex;
+                        e.target.value = hex.toUpperCase();
+                        this.updateHexInputColor(e.target, hex);
+                        this.calculateCloseness(panelId);
+                    }
+                });
+
+                // Real-time calculation on any change
+                [hexInputA, hexInputB].forEach(input => {
+                    input.addEventListener('blur', () => {
+                        const hex = this.validateHex(input.value);
+                        if (hex) {
+                            this.updateHexInputColor(input, hex);
+                        }
+                        this.calculateCloseness(panelId);
+                    });
+                    input.addEventListener('keyup', () => {
+                        this.calculateCloseness(panelId);
+                    });
+                });
+                
+                // Initialize colors for the default values
+                this.updateHexInputColor(hexInputA, hexInputA.value);
+                this.updateHexInputColor(hexInputB, hexInputB.value);
+            }
+
+            updateHexInputColor(hexInput, hexColor) {
+                if (!hexColor || !this.validateHex(hexColor)) return;
+                
+                // Set background color
+                hexInput.style.backgroundColor = hexColor;
+                
+                // Calculate text color for contrast
+                const rgb = this.hexToRgb(hexColor);
+                const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+                
+                // Use white text on dark backgrounds, black text on light backgrounds
+                hexInput.style.color = brightness > 128 ? '#000000' : '#ffffff';
+            }
+
+            validateHex(hex) {
+                // Remove # if present
+                hex = hex.replace('#', '');
+                
+                // Check if it's a valid hex color
+                if (/^[0-9A-Fa-f]{6}$/.test(hex)) {
+                    return '#' + hex.toUpperCase();
+                } else if (/^[0-9A-Fa-f]{3}$/.test(hex)) {
+                    // Convert 3-digit hex to 6-digit
+                    return '#' + hex.split('').map(char => char + char).join('').toUpperCase();
+                }
+                
+                return null;
+            }
+
+            hexToRgb(hex) {
+                // Remove # if present
+                hex = hex.replace('#', '');
+                
+                // Parse RGB components
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                
+                return { r, g, b };
+            }
+
+            calculateCloseness(panelId) {
+                const hexInputA = document.getElementById(`${panelId}-hexA`);
+                const hexInputB = document.getElementById(`${panelId}-hexB`);
+                const scoreElement = document.getElementById(`${panelId}-score`);
+
+                const hexA = hexInputA.value;
+                const hexB = hexInputB.value;
+
+                // Validate both hex values
+                if (!this.validateHex(hexA) || !this.validateHex(hexB)) {
+                    scoreElement.textContent = 'Invalid';
+                    return;
+                }
+
+                // Convert hex to RGB components
+                const rgbA = this.hexToRgb(hexA);
+                const rgbB = this.hexToRgb(hexB);
+
+                // Calculate Euclidean distance: √((R₂-R₁)² + (G₂-G₁)² + (B₂-B₁)²)
+                const rDiff = rgbB.r - rgbA.r;
+                const gDiff = rgbB.g - rgbA.g;
+                const bDiff = rgbB.b - rgbA.b;
+                
+                const euclideanDistance = Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+                
+                // Round to 2 decimal places
+                const roundedDistance = Math.round(euclideanDistance * 100) / 100;
+                scoreElement.textContent = roundedDistance;
+
+                // Add some visual feedback based on Euclidean distance
+                // Max possible distance is √(255² + 255² + 255²) ≈ 441.67
+                const scoreContainer = scoreElement.parentElement;
+                const panel = document.getElementById(panelId);
+                const rangeItems = panel.querySelectorAll('.range-item');
+                
+                // Remove current class from all range items
+                rangeItems.forEach(item => item.classList.remove('current'));
+                
+                if (euclideanDistance < 50) {
+                    scoreContainer.style.background = 'linear-gradient(135deg, #4CAF50, #8BC34A)';
+                    rangeItems[0].classList.add('current'); // Very Close
+                } else if (euclideanDistance < 150) {
+                    scoreContainer.style.background = 'linear-gradient(135deg, #FF9800, #FFC107)';
+                    rangeItems[1].classList.add('current'); // Comparable
+                } else {
+                    scoreContainer.style.background = 'linear-gradient(135deg, #ff6b6b, #ffa726)';
+                    rangeItems[2].classList.add('current'); // Not Close
+                }
+            }
+
+            deletePanel(panelId) {
+                const panel = document.getElementById(panelId);
+                if (panel) {
+                    panel.remove();
+                    this.panelCount--;
+                    
+                    // Show plus panel if we're below maximum
+                    const plusPanel = document.getElementById('plusPanel');
+                    if (this.panelCount < this.maxPanels) {
+                        plusPanel.style.display = 'flex';
+                    }
+                }
+            }
+        }
+
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.colorComparator = new ColorComparator();
+        });
+
+        // Add some fun interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add sparkle effect on title click
+            const title = document.querySelector('.main-title');
+            title.addEventListener('click', () => {
+                title.style.animation = 'none';
+                setTimeout(() => {
+                    title.style.animation = 'bounce 2s infinite';
+                }, 100);
+            });
+
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    if (window.colorComparator) {
+                        window.colorComparator.addPanel();
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
